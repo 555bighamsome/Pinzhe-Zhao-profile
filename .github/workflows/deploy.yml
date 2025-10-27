@@ -18,11 +18,18 @@ jobs:
         with:
           ruby-version: '3.2'
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          # build tools and libraries for gems like nokogiri and sass-embedded
+          sudo apt-get install -y build-essential libxml2-dev libxslt1-dev zlib1g-dev imagemagick nodejs
+
       - name: Install dependencies
         run: |
-          gem install bundler
-          bundle config set --local path 'vendor/bundle'
-          bundle install --jobs 4 --retry 3
+          # install bundler version matching Gemfile.lock
+          gem install bundler -v 2.6.9
+          bundle _2.6.9_ config set --local path 'vendor/bundle'
+          bundle _2.6.9_ install --jobs 4 --retry 3
 
       - name: Build site
         run: bundle exec jekyll build
