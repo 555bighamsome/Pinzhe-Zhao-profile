@@ -151,15 +151,49 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: _site
-name: Legacy deploy (disabled)
+name: Deploy site to GitHub Pages
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  noop:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Notice
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install system dependencies
         run: |
-          echo "This legacy deploy workflow is disabled. GitHub Pages (pages build and deployment) handles deployment now."
+          sudo apt-get update
+          sudo apt-get install -y build-essential libxml2-dev libxslt1-dev zlib1g-dev imagemagick nodejs
+
+      - name: Install bundle
+        run: |
+          gem install bundler -v 2.6.9
+          bundle _2.6.9_ config set --local path 'vendor/bundle'
+          bundle _2.6.9_ install --jobs 4 --retry 3
+
+      - name: Build site
+        env:
+          JEKYLL_ENV: production
+        run: bundle _2.6.9_ exec jekyll build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
