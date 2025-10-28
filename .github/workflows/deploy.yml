@@ -151,3 +151,15 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: _site
+name: Legacy deploy (disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notice
+        run: |
+          echo "This legacy deploy workflow is disabled. GitHub Pages (pages build and deployment) handles deployment now."
